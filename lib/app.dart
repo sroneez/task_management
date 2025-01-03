@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:task_management/ui/screens/add_new_task_screen.dart';
+import 'package:task_management/ui/screens/canceled_list_screen.dart';
+import 'package:task_management/ui/screens/completed_task_screen.dart';
 import 'package:task_management/ui/screens/forgot_password_verify_email_screen.dart';
 import 'package:task_management/ui/screens/forgot_password_verify_otp_screen.dart';
 import 'package:task_management/ui/screens/main_bottom_nav_screen.dart';
+import 'package:task_management/ui/screens/new_task_list_screen.dart';
+import 'package:task_management/ui/screens/progress_task_list_screen.dart';
 import 'package:task_management/ui/screens/reset_password_screen.dart';
 import 'package:task_management/ui/screens/sign_in_screen.dart';
 import 'package:task_management/ui/screens/sign_up_screen.dart';
@@ -76,6 +81,16 @@ class TaskManagerApp extends StatelessWidget {
             widget = const ResetPasswordScreen();
           }else if(settings.name == MainBottomNavScreen.name){
             widget = MainBottomNavScreen();
+          }else if(settings.name == NewTaskListScreen.name){
+            widget = NewTaskListScreen();
+          }else if(settings.name == ProgressTaskListScreen.name){
+            widget = ProgressTaskListScreen();
+          }else if(settings.name == AddNewTaskScreen.name){
+            widget = AddNewTaskScreen();
+          }else if(settings.name == CompletedTaskScreen.name){
+            widget = CompletedTaskScreen();
+          }else if(settings.name == CanceledListScreen.name){
+            widget = CanceledListScreen();
           }
           return MaterialPageRoute(builder: (ctx) {
             return widget;

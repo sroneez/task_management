@@ -5,7 +5,6 @@ import 'package:task_management/ui/screens/main_bottom_nav_screen.dart';
 import 'package:task_management/ui/screens/sign_up_screen.dart';
 import 'package:task_management/ui/utils/app_colors.dart';
 import 'package:task_management/ui/widgets/screen_background.dart';
-import 'package:task_management/app.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
