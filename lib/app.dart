@@ -11,6 +11,7 @@ import 'package:task_management/ui/screens/reset_password_screen.dart';
 import 'package:task_management/ui/screens/sign_in_screen.dart';
 import 'package:task_management/ui/screens/sign_up_screen.dart';
 import 'package:task_management/ui/screens/splash_screen.dart';
+import 'package:task_management/ui/screens/update_profile_screen.dart';
 import 'package:task_management/ui/utils/app_colors.dart';
 
 class TaskManagerApp extends StatelessWidget {
@@ -91,6 +92,8 @@ class TaskManagerApp extends StatelessWidget {
             widget = CompletedTaskScreen();
           }else if(settings.name == CanceledListScreen.name){
             widget = CanceledListScreen();
+          }else if(settings.name == UpdateProfileScreen.name){
+            widget = UpdateProfileScreen();
           }
           return MaterialPageRoute(builder: (ctx) {
             return widget;

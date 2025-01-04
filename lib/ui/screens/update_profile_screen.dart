@@ -1,18 +1,18 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:task_management/ui/utils/app_colors.dart';
-import 'package:task_management/ui/widgets/screen_background.dart';
+import 'package:task_management/ui/widgets/tm_app_bar.dart';
 
-class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({super.key});
+import '../widgets/screen_background.dart';
 
-  static const String name = '/sign_up';
+class UpdateProfileScreen extends StatefulWidget {
+  const UpdateProfileScreen({super.key});
+
+  static const String name = '/update-profile';
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  State<UpdateProfileScreen> createState() => _UpdateProfileScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
+class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   final TextEditingController _emailTEController = TextEditingController();
   final TextEditingController _firstNameTEController = TextEditingController();
   final TextEditingController _lastNameTEController = TextEditingController();
@@ -24,6 +24,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
+      appBar: TMAppBar(
+        fromUpdateProfile: true,
+      ),
       body: ScreenBackground(
         child: SingleChildScrollView(
           child: Padding(
@@ -34,10 +37,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 80),
-                  Text('Join With Us', style: textTheme.titleLarge),
+                  Text('Update Profile', style: textTheme.titleLarge),
                   const SizedBox(
                     height: 8,
                   ),
+                  _buildPhotoPicker(),
                   TextFormField(
                     controller: _emailTEController,
                     keyboardType: TextInputType.emailAddress,
@@ -72,7 +76,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   TextFormField(
                     controller: _passwordTEController,
-                    obscureText: true,
+                    // obscureText: true,
                     decoration: const InputDecoration(hintText: 'Password'),
                   ),
                   const SizedBox(
@@ -82,12 +86,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     onPressed: () {},
                     child: const Icon(Icons.arrow_circle_right_outlined),
                   ),
-                  const SizedBox(
-                    height: 48,
-                  ),
-                  Center(
-                    child: _buildSignInSection(),
-                  )
                 ],
               ),
             ),
@@ -97,27 +95,36 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  RichText _buildSignInSection() {
-    return RichText(
-      text: TextSpan(
-        text: "Already have an account?",
-        style: const TextStyle(
-          color: Colors.black54,
-          fontWeight: FontWeight.w400,
-        ),
-        children: [
-          TextSpan(
-            text: 'Sign In',
-            style: const TextStyle(
-              color: AppColors.themeColor,
-            ),
-            recognizer: TapGestureRecognizer()..onTap = () {
-              Navigator.pop(context);
-            },
-          ),
-        ],
-      ),
-    );
+  Container _buildPhotoPicker() {
+    return Container(
+                  height: 50,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  alignment: Alignment.center,
+                  child: Row(children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(8),
+                          bottomLeft: Radius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        'Photo',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 16,
+                    ),
+                    Text('no item selected'),
+                  ]),
+                );
   }
 
   @override
