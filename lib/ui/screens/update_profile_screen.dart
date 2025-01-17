@@ -24,7 +24,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: TMAppBar(
+      appBar: const TMAppBar(
         fromUpdateProfile: true,
       ),
       body: ScreenBackground(
@@ -107,14 +107,14 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                   child: Row(children: [
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Colors.grey,
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(8),
                           bottomLeft: Radius.circular(8),
                         ),
                       ),
-                      child: Text(
+                      child: const Text(
                         'Photo',
                         style: TextStyle(color: Colors.white),
                       ),
@@ -122,7 +122,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                     const SizedBox(
                       width: 16,
                     ),
-                    Text('no item selected'),
+                    const Text('no item selected'),
                   ]),
                 );
   }

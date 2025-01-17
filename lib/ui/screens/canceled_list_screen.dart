@@ -29,7 +29,7 @@ class _CanceledListScreenState extends State<CanceledListScreen> {
     return ListView.builder(
         itemCount: 10,
         itemBuilder: (context, index) {
-          return const TaskItemWidget(taskColor: Colors.red,);
+          // return const TaskItemWidget(taskColor: Colors.red,);
         });
   }
 }

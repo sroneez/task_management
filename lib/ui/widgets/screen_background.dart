@@ -10,16 +10,20 @@ class ScreenBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        SvgPicture.asset(
-          AssetsPath.backgroundSvg,
-          fit: BoxFit.cover,
-          height: double.maxFinite,
-          width: double.maxFinite,
-        ),
-        SafeArea(child: child),
-      ],
+    final size = MediaQuery.of(context).size;
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      body: Stack(
+        children: [
+          SvgPicture.asset(
+            AssetsPath.backgroundSvg,
+            fit: BoxFit.cover,
+            height: size.height,
+            width: size.width,
+          ),
+          SafeArea(child: child),
+        ],
+      ),
     );
   }
 }

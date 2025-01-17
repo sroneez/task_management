@@ -1,10 +1,16 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:task_management/data/models/user_model.dart';
+import 'package:task_management/data/services/network_caller.dart';
+import 'package:task_management/data/utils/urls.dart';
+import 'package:task_management/ui/controllers/auth_controller.dart';
 import 'package:task_management/ui/screens/forgot_password_verify_email_screen.dart';
 import 'package:task_management/ui/screens/main_bottom_nav_screen.dart';
 import 'package:task_management/ui/screens/sign_up_screen.dart';
 import 'package:task_management/ui/utils/app_colors.dart';
+import 'package:task_management/ui/widgets/centered_circular_progress_indicator.dart';
 import 'package:task_management/ui/widgets/screen_background.dart';
+import 'package:task_management/ui/widgets/snack_bar_message.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -19,6 +25,7 @@ class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController _emailTEController = TextEditingController();
   final TextEditingController _passwordTEController = TextEditingController();
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
+  bool _signInProgress = false;
 
   @override
   Widget build(BuildContext context) {
@@ -39,24 +46,38 @@ class _SignInScreenState extends State<SignInScreen> {
                     height: 8,
                   ),
                   TextFormField(
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(hintText: 'Email'),
-                  ),
+                    controller: _emailTEController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(hintText: 'Email'),
+                      validator: (String? value) {
+                        if (value?.trim().isEmpty ?? true) {
+                          return 'Enter your email';
+                        }
+                        return null;
+                      }),
                   const SizedBox(
                     height: 16,
                   ),
                   TextFormField(
-                    obscureText: true,
-                    decoration: const InputDecoration(hintText: 'Password'),
-                  ),
+                    controller: _passwordTEController,
+                      obscureText: true,
+                      decoration: const InputDecoration(hintText: 'Password'),
+                      validator: (String? value) {
+                        if (value?.trim().isEmpty ?? true) {
+                          return 'Enter your password';
+                        }
+                        return null;
+                      }),
                   const SizedBox(
                     height: 24,
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacementNamed(context, MainBottomNavScreen.name);
-                    },
-                    child: const Icon(Icons.arrow_circle_right_outlined),
+                  Visibility(
+                    visible: _signInProgress == false,
+                    replacement: const CenteredCircularProgressIndicator(),
+                    child: ElevatedButton(
+                      onPressed: _onTapSignInButton,
+                      child: const Icon(Icons.arrow_circle_right_outlined),
+                    ),
                   ),
                   const SizedBox(
                     height: 48,
@@ -66,7 +87,8 @@ class _SignInScreenState extends State<SignInScreen> {
                       children: [
                         TextButton(
                           onPressed: () {
-                            Navigator.pushNamed(context, ForgotPasswordVerifyEmailScreen.name);
+                            Navigator.pushNamed(
+                                context, ForgotPasswordVerifyEmailScreen.name);
                           },
                           child: const Text('Forgot Password?'),
                         ),
@@ -81,6 +103,39 @@ class _SignInScreenState extends State<SignInScreen> {
         ),
       ),
     );
+  }
+
+  void _onTapSignInButton() {
+    if (_globalKey.currentState!.validate()) {
+      _signIn();
+    }
+  }
+
+  Future<void> _signIn() async {
+    _signInProgress = true;
+    setState(() {});
+    Map<String, dynamic> requestBody = {
+      "email": _emailTEController.text.trim(),
+      "password": _passwordTEController.text,
+    };
+    final NetworkResponse response =
+        await NetworkCaller.postRequest(url: Urls.loginUrl, body: requestBody);
+
+    if (response.isSuccess) {
+      String token = response.responseData!['token'];
+      UserModel userModel = UserModel.fromJson(response.responseData!['data']);
+      await AuthController.saveUserData(token, userModel);
+      Navigator.pushReplacementNamed(context, MainBottomNavScreen.name);
+    } else {
+      _signInProgress = false;
+      setState(() {});
+      if(response.statusCode ==401){
+        showSnackBarMessage(context, 'Email/password is invalid! Try again');
+      }
+      else{
+        showSnackBarMessage(context, response.errorMessage);
+      }
+    }
   }
 
   RichText _buildSignUpSection() {

@@ -29,7 +29,7 @@ class _CompletedTaskScreenState extends State<CompletedTaskScreen> {
     return ListView.builder(
         itemCount: 10,
         itemBuilder: (context, index) {
-          return const TaskItemWidget(taskColor: Colors.green,);
+          // return const TaskItemWidget(taskColor: Colors.green,);
         });
   }
 }
