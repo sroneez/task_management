@@ -2,8 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:task_management/data/utils/urls.dart';
+import 'package:task_management/app.dart';
 import 'package:task_management/ui/controllers/auth_controller.dart';
+import 'package:task_management/ui/screens/sign_in_screen.dart';
 
 class NetworkResponse {
   final int statusCode;
@@ -25,9 +26,8 @@ class NetworkCaller {
     try {
       Uri uri = Uri.parse(url);
       debugPrint('URL => $url');
-      Response response = await get(uri, headers: {
-        'token' : AuthController.accessToken ?? ''
-      });
+      Response response =
+          await get(uri, headers: {'token': AuthController.accessToken ?? ''});
       debugPrint('Response code => ${response.statusCode}');
       debugPrint('Response Data => ${response.body}');
       if (response.statusCode == 200) {
@@ -36,6 +36,10 @@ class NetworkCaller {
             isSuccess: true,
             statusCode: response.statusCode,
             responseData: decodedResponseData);
+      } else if (response.statusCode == 401) {
+        _logout();
+        return NetworkResponse(
+            isSuccess: false, statusCode: response.statusCode);
       } else {
         return NetworkResponse(
             isSuccess: false, statusCode: response.statusCode);
@@ -65,6 +69,10 @@ class NetworkCaller {
             isSuccess: true,
             statusCode: response.statusCode,
             responseData: decodedResponseData);
+      } else if (response.statusCode == 401) {
+        await _logout();
+        return NetworkResponse(
+            isSuccess: false, statusCode: response.statusCode);
       } else {
         debugPrint('Error response: ${response.body}');
         return NetworkResponse(
@@ -74,5 +82,13 @@ class NetworkCaller {
       return NetworkResponse(
           isSuccess: false, statusCode: -1, errorMessage: e.toString());
     }
+  }
+
+  static Future<void> _logout() async {
+    await AuthController.clearUserData();
+    Navigator.pushNamedAndRemoveUntil(
+        TaskManagerApp.navigatorKey.currentContext!,
+        SignInScreen.name,
+        (predicate) => false);
   }
 }

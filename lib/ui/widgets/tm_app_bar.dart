@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:task_management/ui/controllers/auth_controller.dart';
 import 'package:task_management/ui/screens/sign_in_screen.dart';
@@ -17,7 +19,13 @@ class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: AppColors.themeColor,
       title: Row(
         children: [
-          const CircleAvatar(),
+          CircleAvatar(
+            radius: 20,
+            backgroundImage: MemoryImage(
+              base64Decode(AuthController.userModel?.photo ?? ''),
+            ),
+            onBackgroundImageError: (_, __) => const Icon(Icons.person),
+          ),
           const SizedBox(
             width: 8,
           ),
@@ -38,7 +46,8 @@ class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
                     ),
                   ),
                   Text(
-                    AuthController.userModel?.email ?? 'guest.example@gmail.com',
+                    AuthController.userModel?.email ??
+                        'guest.example@gmail.com',
                     style: textStyle.bodySmall?.copyWith(
                       color: Colors.white,
                     ),
@@ -47,10 +56,13 @@ class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ),
           ),
-          IconButton(onPressed: () async{
-            await AuthController.clearUserData();
-            Navigator.pushNamedAndRemoveUntil(context, SignInScreen.name, (predicate)=> false);
-          }, icon: const Icon(Icons.logout_outlined))
+          IconButton(
+              onPressed: () async {
+                await AuthController.clearUserData();
+                Navigator.pushNamedAndRemoveUntil(
+                    context, SignInScreen.name, (predicate) => false);
+              },
+              icon: const Icon(Icons.logout_outlined))
         ],
       ),
     );

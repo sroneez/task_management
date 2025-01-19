@@ -3,9 +3,10 @@ import 'package:task_management/data/models/task_model.dart';
 
 class TaskItemWidget extends StatelessWidget {
   const TaskItemWidget({
-    super.key, required this.taskColor, required this.taskModel,
+    super.key, required this.taskColor, required this.taskModel, required this.status,
   });
   final Color taskColor;
+  final String status;
   final TaskModel taskModel;
 
   @override
@@ -34,7 +35,7 @@ class TaskItemWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                       color: taskColor,
                     ),
-                    child: const Text('New'),
+                    child:  Text(status),
                   ),
                   Row(
                     children: [

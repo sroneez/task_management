@@ -17,6 +17,8 @@ import 'package:task_management/ui/utils/app_colors.dart';
 class TaskManagerApp extends StatelessWidget {
   const TaskManagerApp({super.key});
 
+  static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -81,19 +83,19 @@ class TaskManagerApp extends StatelessWidget {
           }else if(settings.name == ResetPasswordScreen.name){
             widget = const ResetPasswordScreen();
           }else if(settings.name == MainBottomNavScreen.name){
-            widget = MainBottomNavScreen();
+            widget = const MainBottomNavScreen();
           }else if(settings.name == NewTaskListScreen.name){
-            widget = NewTaskListScreen();
+            widget = const NewTaskListScreen();
           }else if(settings.name == ProgressTaskListScreen.name){
-            widget = ProgressTaskListScreen();
+            widget = const ProgressTaskListScreen();
           }else if(settings.name == AddNewTaskScreen.name){
-            widget = AddNewTaskScreen();
+            widget = const AddNewTaskScreen();
           }else if(settings.name == CompletedTaskScreen.name){
-            widget = CompletedTaskScreen();
+            widget = const CompletedTaskScreen();
           }else if(settings.name == CanceledListScreen.name){
-            widget = CanceledListScreen();
+            widget = const CanceledListScreen();
           }else if(settings.name == UpdateProfileScreen.name){
-            widget = UpdateProfileScreen();
+            widget = const UpdateProfileScreen();
           }
           return MaterialPageRoute(builder: (ctx) {
             return widget;
