@@ -26,9 +26,14 @@ class _MainBottomNavScreenState extends State<MainBottomNavScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: RefreshIndicator(
+        onRefresh: ()async{
+
+        },
+        child: _screens[_selectedIndex],
+      ),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
+          selectedIndex: _selectedIndex,
           onDestinationSelected: ((int index) {
             _selectedIndex = index;
             setState(() {});

@@ -40,17 +40,19 @@ class _NewTaskListScreenState extends State<NewTaskListScreen> {
     return Scaffold(
       appBar: const TMAppBar(),
       body: ScreenBackground(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _buildTaskSummeryByStatus(),
-              Visibility(
-                visible: _getNewTaskListInProgress == false,
-                replacement: const CenteredCircularProgressIndicator(),
-                child: _buildTaskListView(),
+        child: ListView(
+          children: [
+            Visibility(
+              visible: _getNewTaskListInProgress == false,
+              replacement: const CenteredCircularProgressIndicator(),
+              child: Column(
+                children: [
+                  _buildTaskSummeryByStatus(),
+                  _buildTaskListView(),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -79,23 +81,19 @@ class _NewTaskListScreenState extends State<NewTaskListScreen> {
   Widget _buildTaskSummeryByStatus() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: Visibility(
-        visible: _getTaskCountByStatusInProgress == false,
-        replacement: const CenteredCircularProgressIndicator(),
-        child: SizedBox(
-          height: 100,
-          child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              primary: false,
-              shrinkWrap: true,
-              itemCount: taskCountByStatusModel?.taskByStatusList?.length ?? 0,
-              itemBuilder: (context, index) {
-                final TaskCountModel model =
-                    taskCountByStatusModel!.taskByStatusList![index];
-                return TaskStatusSummeryCounterWidget(
-                    counter: model.sum.toString(), title: model.sId ?? '');
-              }),
-        ),
+      child: SizedBox(
+        height: 100,
+        child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            primary: false,
+            shrinkWrap: true,
+            itemCount: taskCountByStatusModel?.taskByStatusList?.length ?? 0,
+            itemBuilder: (context, index) {
+              final TaskCountModel model =
+                  taskCountByStatusModel!.taskByStatusList![index];
+              return TaskStatusSummeryCounterWidget(
+                  counter: model.sum.toString(), title: model.sId ?? '');
+            }),
       ),
     );
   }

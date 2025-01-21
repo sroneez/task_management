@@ -74,29 +74,32 @@ class TaskManagerApp extends StatelessWidget {
             widget = const SplashScreen();
           } else if (settings.name == SignInScreen.name) {
             widget = const SignInScreen();
-          }else if(settings.name == SignUpScreen.name){
+          } else if (settings.name == SignUpScreen.name) {
             widget = const SignUpScreen();
-          }else if(settings.name == ForgotPasswordVerifyEmailScreen.name){
+          } else if (settings.name == ForgotPasswordVerifyEmailScreen.name) {
             widget = const ForgotPasswordVerifyEmailScreen();
-          }else if(settings.name == ForgotPasswordVerifyOtpScreen.name){
+          } else if (settings.name == ForgotPasswordVerifyOtpScreen.name) {
             final String email = settings.arguments as String;
             widget = ForgotPasswordVerifyOtpScreen(email: email);
-          }else if(settings.name == ResetPasswordScreen.name){
+          } else if (settings.name == ResetPasswordScreen.name) {
             final args = settings.arguments as Map<String, String>;
-            widget =  ResetPasswordScreen(email: args['email']!,otp: args['otp']!,);
-          }else if(settings.name == MainBottomNavScreen.name){
+            widget = ResetPasswordScreen(
+              email: args['email']!,
+              otp: args['otp']!,
+            );
+          } else if (settings.name == MainBottomNavScreen.name) {
             widget = const MainBottomNavScreen();
-          }else if(settings.name == NewTaskListScreen.name){
+          } else if (settings.name == NewTaskListScreen.name) {
             widget = const NewTaskListScreen();
-          }else if(settings.name == ProgressTaskListScreen.name){
+          } else if (settings.name == ProgressTaskListScreen.name) {
             widget = const ProgressTaskListScreen();
-          }else if(settings.name == AddNewTaskScreen.name){
+          } else if (settings.name == AddNewTaskScreen.name) {
             widget = const AddNewTaskScreen();
-          }else if(settings.name == CompletedTaskScreen.name){
+          } else if (settings.name == CompletedTaskScreen.name) {
             widget = const CompletedTaskScreen();
-          }else if(settings.name == CanceledListScreen.name){
+          } else if (settings.name == CanceledListScreen.name) {
             widget = const CanceledListScreen();
-          }else if(settings.name == UpdateProfileScreen.name){
+          } else if (settings.name == UpdateProfileScreen.name) {
             widget = const UpdateProfileScreen();
           }
           return MaterialPageRoute(builder: (ctx) {
