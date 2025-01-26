@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:task_management/data/models/task_model.dart';
 import 'package:task_management/ui/screens/canceled_list_screen.dart';
 import 'package:task_management/ui/screens/new_task_list_screen.dart';
 import 'package:task_management/ui/screens/progress_task_list_screen.dart';
@@ -15,12 +16,19 @@ class MainBottomNavScreen extends StatefulWidget {
 }
 
 class _MainBottomNavScreenState extends State<MainBottomNavScreen> {
+
+  final List<TaskModel> task = [];
+
+  List<TaskModel> get completedTask{
+    return task.where((task) => task.status == 'Completed').toList();
+}
+
   int _selectedIndex = 0;
-  final List<Widget> _screens = const [
-    NewTaskListScreen(),
-    ProgressTaskListScreen(),
-    CompletedTaskScreen(),
-    CanceledListScreen(),
+  final List<Widget> _screens = [
+    const NewTaskListScreen(),
+    const ProgressTaskListScreen(),
+    const CompletedTaskScreen(),
+    const CanceledListScreen(),
   ];
 
   @override

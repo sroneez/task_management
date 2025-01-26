@@ -3,6 +3,10 @@ import 'package:task_management/data/models/task_count_model.dart';
 import 'package:task_management/data/models/task_model.dart';
 import 'package:task_management/data/services/network_caller.dart';
 import 'package:task_management/data/utils/urls.dart';
+import 'package:task_management/ui/screens/canceled_list_screen.dart';
+import 'package:task_management/ui/screens/completed_task_screen.dart';
+import 'package:task_management/ui/screens/new_task_list_screen.dart';
+import 'package:task_management/ui/screens/progress_task_list_screen.dart';
 import 'package:task_management/ui/widgets/snack_bar_message.dart';
 
 class TaskItemWidget extends StatelessWidget {
@@ -47,10 +51,8 @@ class TaskItemWidget extends StatelessWidget {
                     child: Text(status),
                   ),
                   Row(
-                    children: [
-                      IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.edit_note_outlined)),
+                    children: <Widget>[
+                      _showStatusChangeDialog(context),
                       IconButton(
                         onPressed: () {
                           _deleteTaskDialog(context);
@@ -68,6 +70,34 @@ class TaskItemWidget extends StatelessWidget {
     );
   }
 
+  PopupMenuButton<String> _showStatusChangeDialog(context) {
+    return PopupMenuButton<String>(
+        icon: const Icon(Icons.edit_note_outlined),
+        onSelected: (String selectedStatus) async {
+            await _updateTaskStatus(selectedStatus, context);
+        },
+        itemBuilder: (context) {
+          return [
+            const PopupMenuItem(
+              value: 'New',
+              child: Text('New'),
+            ),
+            const PopupMenuItem(
+              value: 'Progress',
+              child: Text('Progress'),
+            ),
+            const PopupMenuItem(
+              value: 'Completed',
+              child: Text('Completed'),
+            ),
+            const PopupMenuItem(
+              value: 'Canceled',
+              child: Text('Canceled'),
+            ),
+          ];
+        });
+  }
+
   Future<dynamic> _deleteTaskDialog(BuildContext context) {
     return showDialog(
         context: context,
@@ -77,12 +107,11 @@ class TaskItemWidget extends StatelessWidget {
             content: const Text('Are you sure?'),
             actions: [
               TextButton(
-                onPressed: () async{
+                onPressed: () async {
                   Navigator.pop(context);
                   showSnackBarMessage(context, 'Task deleted successfully');
                   await _deleteTask(taskModel.sId ?? '', context);
                 },
-
                 child: const Text('Yes'),
               ),
               TextButton(
@@ -100,10 +129,33 @@ class TaskItemWidget extends StatelessWidget {
     final NetworkResponse response = await NetworkCaller.getRequest(
       url: Urls.deleteTaskUrl(id),
     );
-    if(response.isSuccess){
+    if (response.isSuccess) {
       Navigator.pop(context);
+    } else {
+      showSnackBarMessage(context, response.errorMessage);
     }
-    else{
+  }
+
+  Future<void> _updateTaskStatus(String newStatus, context) async {
+    final NetworkResponse response = await NetworkCaller.getRequest(
+      url: Urls.taskStatusUpdateUrl(taskModel.sId ?? '', newStatus, context),
+    );
+    if (response.isSuccess) {
+      showSnackBarMessage(context, 'Task status updated to $newStatus');
+      if (newStatus == 'New') {
+        Navigator.pushNamed(context, NewTaskListScreen.name,
+            arguments: taskModel);
+      } else if (newStatus == 'Completed') {
+        Navigator.pushNamed(context, CompletedTaskScreen.name,
+            arguments: taskModel);
+      } else if (newStatus == 'Progress') {
+        Navigator.pushNamed(context, ProgressTaskListScreen.name,
+            arguments: taskModel);
+      } else if (newStatus == 'Canceled') {
+        Navigator.pushNamed(context, CanceledListScreen.name,
+            arguments: taskModel);
+      }
+    } else {
       showSnackBarMessage(context, response.errorMessage);
     }
   }
