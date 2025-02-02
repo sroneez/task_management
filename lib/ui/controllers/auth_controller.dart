@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task_management/data/models/user_model.dart';
 
+//authController is for to keep save user login data so that he do not need to login
+//again and again
+
 class AuthController {
   static String? accessToken;
   static UserModel? userModel;

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:task_management/controller_binder.dart';
 import 'package:task_management/ui/screens/add_new_task_screen.dart';
 import 'package:task_management/ui/screens/canceled_list_screen.dart';
 import 'package:task_management/ui/screens/completed_task_screen.dart';
@@ -21,8 +23,9 @@ class TaskManagerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
         debugShowCheckedModeBanner: false,
+        initialBinding: ControllerBinder(),
         theme: ThemeData(
           textTheme: const TextTheme(
             titleLarge: TextStyle(

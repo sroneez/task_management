@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:task_management/data/models/task_count_by_status_model.dart';
 import 'package:task_management/data/models/task_count_model.dart';
 import 'package:task_management/data/models/task_list_by_status_model.dart';
+import 'package:task_management/data/models/task_model.dart';
 import 'package:task_management/data/services/network_caller.dart';
 import 'package:task_management/data/utils/urls.dart';
+import 'package:task_management/ui/controllers/new_task_controller.dart';
 import 'package:task_management/ui/screens/add_new_task_screen.dart';
 import 'package:task_management/ui/widgets/centered_circular_progress_indicator.dart';
 import 'package:task_management/ui/widgets/screen_background.dart';
@@ -24,9 +27,9 @@ class NewTaskListScreen extends StatefulWidget {
 
 class _NewTaskListScreenState extends State<NewTaskListScreen> {
   bool _getTaskCountByStatusInProgress = false;
-  bool _getNewTaskListInProgress = false;
   TaskCountByStatusModel? taskCountByStatusModel;
   TaskListByStatusModel? newTaskListModel;
+  final NewTaskController _newTaskController = Get.find<NewTaskController>();
 
   @override
   void initState() {
@@ -40,40 +43,50 @@ class _NewTaskListScreenState extends State<NewTaskListScreen> {
     return Scaffold(
       appBar: const TMAppBar(),
       body: ScreenBackground(
-        child: ListView(
-          children: [
-            Visibility(
-              visible: _getNewTaskListInProgress == false,
-              replacement: const CenteredCircularProgressIndicator(),
-              child: Column(
-                children: [
-                  _buildTaskSummeryByStatus(),
-                  _buildTaskListView(),
-                ],
+        child: RefreshIndicator(
+          onRefresh: () async {
+            _getNewTaskList();
+            _buildTaskSummeryByStatus();
+          },
+          child: ListView(
+            children: [
+              GetBuilder<NewTaskController>(
+                builder: (controller) {
+                  return Visibility(
+                    visible: _newTaskController.inProgress == false,
+                    replacement: const CenteredCircularProgressIndicator(),
+                    child: Column(
+                      children: [
+                        _buildTaskSummeryByStatus(),
+                        _buildTaskListView(controller.taskList),
+                      ],
+                    ),
+                  );
+                }
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, AddNewTaskScreen.name);
+          Get.toNamed( AddNewTaskScreen.name);
         },
         child: const Icon(Icons.add),
       ),
     );
   }
 
-  ListView _buildTaskListView() {
+  ListView _buildTaskListView(List<TaskModel> taskList) {
     return ListView.builder(
         shrinkWrap: true,
         primary: false,
-        itemCount: newTaskListModel?.taskList?.length ?? 0,
+        itemCount: taskList.length,
         itemBuilder: (context, index) {
           return TaskItemWidget(
             taskColor: Colors.blue,
             status: 'New',
-            taskModel: newTaskListModel!.taskList![index],
+            taskModel: taskList[index],
           );
         });
   }
@@ -114,16 +127,9 @@ class _NewTaskListScreenState extends State<NewTaskListScreen> {
   }
 
   Future<void> _getNewTaskList() async {
-    _getNewTaskListInProgress = true;
-    setState(() {});
-    final NetworkResponse response =
-        await NetworkCaller.getRequest(url: Urls.taskListByStatusUrl('New'));
-    if (response.isSuccess) {
-      newTaskListModel = TaskListByStatusModel.fromJson(response.responseData!);
-    } else {
-      showSnackBarMessage(context, response.errorMessage);
+    bool isSuccess = await _newTaskController.getTaskList();
+    if (!isSuccess) {
+      showSnackBarMessage(context, _newTaskController.errorMessage!);
     }
-    _getNewTaskListInProgress = false;
-    setState(() {});
   }
 }

@@ -1,9 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:task_management/data/models/user_model.dart';
-import 'package:task_management/data/services/network_caller.dart';
-import 'package:task_management/data/utils/urls.dart';
-import 'package:task_management/ui/controllers/auth_controller.dart';
+import 'package:get/get.dart';
+import 'package:task_management/ui/controllers/sign_in_controller.dart';
 import 'package:task_management/ui/screens/forgot_password_verify_email_screen.dart';
 import 'package:task_management/ui/screens/main_bottom_nav_screen.dart';
 import 'package:task_management/ui/screens/sign_up_screen.dart';
@@ -25,7 +23,7 @@ class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController _emailTEController = TextEditingController();
   final TextEditingController _passwordTEController = TextEditingController();
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
-  bool _signInProgress = false;
+  final SignInController _signInController = Get.find<SignInController>();
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +44,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     height: 8,
                   ),
                   TextFormField(
-                    controller: _emailTEController,
+                      controller: _emailTEController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: const InputDecoration(hintText: 'Email'),
                       validator: (String? value) {
@@ -59,7 +57,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     height: 16,
                   ),
                   TextFormField(
-                    controller: _passwordTEController,
+                      controller: _passwordTEController,
                       obscureText: true,
                       decoration: const InputDecoration(hintText: 'Password'),
                       validator: (String? value) {
@@ -71,14 +69,16 @@ class _SignInScreenState extends State<SignInScreen> {
                   const SizedBox(
                     height: 24,
                   ),
-                  Visibility(
-                    visible: _signInProgress == false,
-                    replacement: const CenteredCircularProgressIndicator(),
-                    child: ElevatedButton(
-                      onPressed: _onTapSignInButton,
-                      child: const Icon(Icons.arrow_circle_right_outlined),
-                    ),
-                  ),
+                  GetBuilder<SignInController>(builder: (controller) {
+                    return Visibility(
+                      visible: _signInController.inProgress == false,
+                      replacement: const CenteredCircularProgressIndicator(),
+                      child: ElevatedButton(
+                        onPressed: _onTapSignInButton,
+                        child: const Icon(Icons.arrow_circle_right_outlined),
+                      ),
+                    );
+                  }),
                   const SizedBox(
                     height: 48,
                   ),
@@ -112,29 +112,13 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Future<void> _signIn() async {
-    _signInProgress = true;
-    setState(() {});
-    Map<String, dynamic> requestBody = {
-      "email": _emailTEController.text.trim(),
-      "password": _passwordTEController.text,
-    };
-    final NetworkResponse response =
-        await NetworkCaller.postRequest(url: Urls.loginUrl, body: requestBody);
+    bool isSuccess = await _signInController.signIn(
+        _emailTEController.text.trim(), _passwordTEController.text);
 
-    if (response.isSuccess) {
-      String token = response.responseData!['token'];
-      UserModel userModel = UserModel.fromJson(response.responseData!['data']);
-      await AuthController.saveUserData(token, userModel);
-      Navigator.pushReplacementNamed(context, MainBottomNavScreen.name);
+    if (isSuccess) {
+      Get.offNamed(MainBottomNavScreen.name);
     } else {
-      _signInProgress = false;
-      setState(() {});
-      if(response.statusCode ==401){
-        showSnackBarMessage(context, 'Email/password is invalid! Try again');
-      }
-      else{
-        showSnackBarMessage(context, response.errorMessage);
-      }
+      showSnackBarMessage(context, _signInController.errorMessage!);
     }
   }
 
@@ -154,7 +138,7 @@ class _SignInScreenState extends State<SignInScreen> {
             ),
             recognizer: TapGestureRecognizer()
               ..onTap = () {
-                Navigator.pushNamed(context, SignUpScreen.name);
+                Get.toNamed(SignUpScreen.name);
               },
           ),
         ],

@@ -16,13 +16,6 @@ class MainBottomNavScreen extends StatefulWidget {
 }
 
 class _MainBottomNavScreenState extends State<MainBottomNavScreen> {
-
-  final List<TaskModel> task = [];
-
-  List<TaskModel> get completedTask{
-    return task.where((task) => task.status == 'Completed').toList();
-}
-
   int _selectedIndex = 0;
   final List<Widget> _screens = [
     const NewTaskListScreen(),
@@ -34,12 +27,7 @@ class _MainBottomNavScreenState extends State<MainBottomNavScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: ()async{
-
-        },
-        child: _screens[_selectedIndex],
-      ),
+      body: _screens[_selectedIndex],
       bottomNavigationBar: NavigationBar(
           selectedIndex: _selectedIndex,
           onDestinationSelected: ((int index) {
