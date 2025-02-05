@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:task_management/data/models/task_count_model.dart';
+import 'package:get/get.dart';
 import 'package:task_management/data/models/task_model.dart';
 import 'package:task_management/data/services/network_caller.dart';
 import 'package:task_management/data/utils/urls.dart';
@@ -130,7 +130,7 @@ class TaskItemWidget extends StatelessWidget {
       url: Urls.deleteTaskUrl(id),
     );
     if (response.isSuccess) {
-      Navigator.pop(context);
+      Get.off(context);
     } else {
       showSnackBarMessage(context, response.errorMessage);
     }
@@ -143,17 +143,13 @@ class TaskItemWidget extends StatelessWidget {
     if (response.isSuccess) {
       showSnackBarMessage(context, 'Task status updated to $newStatus');
       if (newStatus == 'New') {
-        Navigator.pushNamed(context, NewTaskListScreen.name,
-            arguments: taskModel);
+        Get.toNamed(NewTaskListScreen.name);
       } else if (newStatus == 'Completed') {
-        Navigator.pushNamed(context, CompletedTaskScreen.name,
-            arguments: taskModel);
+        Get.toNamed( CompletedTaskScreen.name);
       } else if (newStatus == 'Progress') {
-        Navigator.pushNamed(context, ProgressTaskListScreen.name,
-            arguments: taskModel);
+        Get.toNamed( ProgressTaskListScreen.name);
       } else if (newStatus == 'Canceled') {
-        Navigator.pushNamed(context, CanceledListScreen.name,
-            arguments: taskModel);
+        Get.toNamed( CanceledListScreen.name);
       }
     } else {
       showSnackBarMessage(context, response.errorMessage);

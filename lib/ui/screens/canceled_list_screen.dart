@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:task_management/data/models/task_list_by_status_model.dart';
+import 'package:get/get.dart';
 import 'package:task_management/data/models/task_model.dart';
+import 'package:task_management/ui/controllers/canceled_task_controller.dart';
 import 'package:task_management/ui/widgets/centered_circular_progress_indicator.dart';
 import 'package:task_management/ui/widgets/screen_background.dart';
+import 'package:task_management/ui/widgets/snack_bar_message.dart';
 import 'package:task_management/ui/widgets/task_item_widget.dart';
 
-import '../../data/services/network_caller.dart';
-import '../../data/utils/urls.dart';
 import '../widgets/tm_app_bar.dart';
 
 class CanceledListScreen extends StatefulWidget {
@@ -14,14 +14,13 @@ class CanceledListScreen extends StatefulWidget {
 
   static const String name = '/canceled-task-list';
 
-
   @override
   State<CanceledListScreen> createState() => _CanceledListScreenState();
 }
 
 class _CanceledListScreenState extends State<CanceledListScreen> {
-  List<TaskModel> canceledTask = [];
-  bool isLoading = false;
+  final CanceledTaskController _canceledTaskController =
+      Get.find<CanceledTaskController>();
 
   @override
   void didChangeDependencies() {
@@ -34,49 +33,35 @@ class _CanceledListScreenState extends State<CanceledListScreen> {
     return Scaffold(
       appBar: const TMAppBar(),
       body: ScreenBackground(
-        child: Visibility(
-          visible: isLoading == false,
-            replacement: const CenteredCircularProgressIndicator(),
-            child: _buildTaskListView()),
+        child: GetBuilder<CanceledTaskController>(
+          builder: (controller) {
+            return Visibility(
+                visible: _canceledTaskController.inProgress == false,
+                replacement: const CenteredCircularProgressIndicator(),
+                child: _buildTaskListView(controller.taskList));
+          }
+        ),
       ),
     );
   }
 
-  ListView _buildTaskListView() {
+  ListView _buildTaskListView(List<TaskModel> taskList) {
     return ListView.builder(
-        itemCount: canceledTask.length,
+        itemCount: taskList.length,
         itemBuilder: (context, index) {
-          final task = canceledTask[index];
-          return  TaskItemWidget(taskColor: Colors.red,taskModel: task, status: 'Canceled',);
+          final task = taskList[index];
+          return TaskItemWidget(
+            taskColor: Colors.red,
+            taskModel: task,
+            status: 'Canceled',
+          );
         });
   }
 
   Future<void> _fetchCanceledTasks() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    final response = await NetworkCaller.getRequest(
-      url: Urls.taskListByStatusUrl('Canceled'),
-    );
-
-    if (response.isSuccess && response.responseData != null) {
-      try{
-        final responseData = response.responseData;
-        final taskListModel = TaskListByStatusModel.fromJson(responseData!);
-        setState(() {
-          canceledTask = taskListModel.taskList ?? [];
-        });
-      }catch(e){
-        debugPrint('Failed to parse task list: $e');
-      }
-    } else {
-      // Handle error or show a message
-      debugPrint('Failed to fetch tasks: ${response.errorMessage}');
+    bool isSuccess = await _canceledTaskController.getTaskList();
+    if (!isSuccess) {
+      showSnackBarMessage(context, _canceledTaskController.errorMessage!);
     }
-
-    setState(() {
-      isLoading = false;
-    });
   }
 }

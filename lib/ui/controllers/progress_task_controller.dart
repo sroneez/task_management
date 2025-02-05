@@ -6,7 +6,7 @@ import 'package:task_management/data/services/network_caller.dart';
 import 'package:task_management/data/utils/urls.dart';
 import 'package:task_management/ui/controllers/auth_controller.dart';
 
-class NewTaskController extends GetxController {
+class ProgressTaskController extends GetxController {
   bool _getTaskListInProgress = false;
   TaskListByStatusModel? _taskListByStatusModel;
 
@@ -22,8 +22,9 @@ class NewTaskController extends GetxController {
     _getTaskListInProgress = true;
     update();
 
-    final NetworkResponse response =
-        await NetworkCaller.getRequest(url: Urls.taskListByStatusUrl('New'));
+    final response = await NetworkCaller.getRequest(
+      url: Urls.taskListByStatusUrl('Progress'),
+    );
 
     if (response.isSuccess) {
       _taskListByStatusModel =

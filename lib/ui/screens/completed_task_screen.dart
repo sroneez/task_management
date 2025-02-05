@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:task_management/data/models/task_list_by_status_model.dart';
+import 'package:get/get.dart';
 import 'package:task_management/data/models/task_model.dart';
-import 'package:task_management/data/services/network_caller.dart';
+import 'package:task_management/ui/controllers/completed_task_controller.dart';
 import 'package:task_management/ui/widgets/centered_circular_progress_indicator.dart';
 import 'package:task_management/ui/widgets/screen_background.dart';
+import 'package:task_management/ui/widgets/snack_bar_message.dart';
 import 'package:task_management/ui/widgets/task_item_widget.dart';
 
-import '../../data/utils/urls.dart';
 import '../widgets/tm_app_bar.dart';
 
 class CompletedTaskScreen extends StatefulWidget {
@@ -21,8 +21,7 @@ class CompletedTaskScreen extends StatefulWidget {
 }
 
 class _CompletedTaskScreenState extends State<CompletedTaskScreen> {
-  List<TaskModel> completedTask = [];
-  bool isLoading = false;
+  final CompletedTaskController _completedTaskController = Get.find<CompletedTaskController>();
 
   @override
   void didChangeDependencies() {
@@ -35,19 +34,23 @@ class _CompletedTaskScreenState extends State<CompletedTaskScreen> {
     return Scaffold(
       appBar: const TMAppBar(),
       body: ScreenBackground(
-        child: Visibility(
-          visible: isLoading == false,
-            replacement: const CenteredCircularProgressIndicator(),
-            child: _buildTaskListView()),
+        child: GetBuilder<CompletedTaskController>(
+          builder: (controller) {
+            return Visibility(
+              visible: _completedTaskController.inProgress == false,
+                replacement: const CenteredCircularProgressIndicator(),
+                child: _buildTaskListView(controller.taskList));
+          }
+        ),
       ),
     );
   }
 
-  ListView _buildTaskListView() {
+  ListView _buildTaskListView(List<TaskModel> taskList) {
     return ListView.builder(
-        itemCount: completedTask.length,
+        itemCount: taskList.length,
         itemBuilder: (context, index) {
-          final task = completedTask[index];
+          final task = taskList[index];
           return TaskItemWidget(
             status: 'Completed',
             taskModel: task,
@@ -57,31 +60,9 @@ class _CompletedTaskScreenState extends State<CompletedTaskScreen> {
   }
 
   Future<void> _fetchCompletedTasks() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    final response = await NetworkCaller.getRequest(
-      url: Urls.taskListByStatusUrl('Completed'),
-    );
-
-    if (response.isSuccess && response.responseData != null) {
-      try{
-        final responseData = response.responseData;
-        final taskListModel = TaskListByStatusModel.fromJson(responseData!);
-        setState(() {
-          completedTask = taskListModel.taskList ?? [];
-        });
-      }catch(e){
-        debugPrint('failed to parse task list: $e');
-      }
-    } else {
-      // Handle error or show a message
-      debugPrint('Failed to fetch tasks: ${response.errorMessage}');
-    }
-
-    setState(() {
-      isLoading = false;
-    });
+   bool isSuccess = await _completedTaskController.getTaskList();
+   if(!isSuccess){
+     showSnackBarMessage(context, _completedTaskController.errorMessage!);
+   }
   }
 }
