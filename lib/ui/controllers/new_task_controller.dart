@@ -35,4 +35,25 @@ class NewTaskController extends GetxController {
     update();
     return isSuccess;
   }
+
+  Future<bool> getTaskSummaryByStatus() async{
+    bool isSuccess = false;
+    _getTaskListInProgress = true;
+    update();
+
+    final NetworkResponse response =
+    await NetworkCaller.getRequest(url: Urls.taskCountByStatusUrl);
+
+    if (response.isSuccess) {
+      _taskListByStatusModel =
+          TaskListByStatusModel.fromJson(response.responseData!);
+      isSuccess = true;
+      _errorMessage = null;
+    } else {}
+    _getTaskListInProgress = false;
+    update();
+    return isSuccess;
+  }
+
+
 }

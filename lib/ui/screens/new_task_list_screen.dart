@@ -112,18 +112,10 @@ class _NewTaskListScreenState extends State<NewTaskListScreen> {
   }
 
   Future<void> _getTasksSummaryByStatus() async {
-    _getTaskCountByStatusInProgress = true;
-    setState(() {});
-    final NetworkResponse response =
-        await NetworkCaller.getRequest(url: Urls.taskCountByStatusUrl);
-    if (response.isSuccess) {
-      taskCountByStatusModel =
-          TaskCountByStatusModel.fromJson(response.responseData!);
-    } else {
-      showSnackBarMessage(context, response.errorMessage);
+    bool isSuccess = await _newTaskController.getTaskSummaryByStatus();
+    if(!isSuccess){
+      showSnackBarMessage(context, _newTaskController.errorMessage!);
     }
-    _getTaskCountByStatusInProgress = false;
-    setState(() {});
   }
 
   Future<void> _getNewTaskList() async {

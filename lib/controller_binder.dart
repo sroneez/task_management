@@ -1,9 +1,13 @@
 import 'package:get/get.dart';
 import 'package:task_management/ui/controllers/canceled_task_controller.dart';
 import 'package:task_management/ui/controllers/completed_task_controller.dart';
+import 'package:task_management/ui/controllers/forgot_password_verify_email_controller.dart';
+import 'package:task_management/ui/controllers/forgot_password_verify_otp_controller.dart';
 import 'package:task_management/ui/controllers/new_task_controller.dart';
 import 'package:task_management/ui/controllers/progress_task_controller.dart';
 import 'package:task_management/ui/controllers/sign_in_controller.dart';
+import 'package:task_management/ui/controllers/sign_up_controller.dart';
+import 'package:task_management/ui/controllers/task_item_widget_controller.dart';
 
 class ControllerBinder extends Bindings{
   @override
@@ -13,6 +17,11 @@ class ControllerBinder extends Bindings{
     Get.put( ProgressTaskController());
     Get.put( CompletedTaskController());
     Get.put( CanceledTaskController());
+    Get.put( TaskItemWidgetController());
+    Get.lazyPut(() => SignUpController());
+    Get.lazyPut(() => ForgotPasswordVerifyEmailController());
+    Get.lazyPut(() =>ForgotPasswordVerifyOtpController());
+
   }
 
 }

@@ -4,7 +4,7 @@ import 'package:task_management/data/models/task_model.dart';
 import 'package:task_management/data/services/network_caller.dart';
 import 'package:task_management/data/utils/urls.dart';
 
-class CompletedTaskController extends GetxController {
+class ForgotPasswordVerifyOtpController extends GetxController {
   bool _getTaskListInProgress = false;
   TaskListByStatusModel? _taskListByStatusModel;
 
@@ -15,21 +15,21 @@ class CompletedTaskController extends GetxController {
 
   String? get errorMessage => _errorMessage;
 
-  Future<bool> getTaskList() async {
+  Future<bool> verifyOtp(String email, String otp) async {
     bool isSuccess = false;
     _getTaskListInProgress = true;
     update();
 
-    final response = await NetworkCaller.getRequest(
-      url: Urls.taskListByStatusUrl('Completed'),
+    final NetworkResponse response = await NetworkCaller.getRequest(
+      url: Urls.otpVerificationUrl(email, otp),
     );
 
     if (response.isSuccess) {
-      _taskListByStatusModel =
-          TaskListByStatusModel.fromJson(response.responseData!);
       isSuccess = true;
       _errorMessage = null;
-    } else {}
+    } else {
+      _errorMessage = response.errorMessage;
+    }
     _getTaskListInProgress = false;
     update();
     return isSuccess;

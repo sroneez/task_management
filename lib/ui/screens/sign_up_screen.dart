@@ -1,7 +1,10 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:task_management/data/services/network_caller.dart';
 import 'package:task_management/data/utils/urls.dart';
+import 'package:task_management/ui/controllers/sign_up_controller.dart';
 import 'package:task_management/ui/utils/app_colors.dart';
 import 'package:task_management/ui/widgets/centered_circular_progress_indicator.dart';
 import 'package:task_management/ui/widgets/screen_background.dart';
@@ -24,6 +27,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordTEController = TextEditingController();
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
   bool _signUpInProgress = false;
+  final SignUpController _signUpController = Get.find<SignUpController>();
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +104,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       if (value?.trim().isEmpty ?? true) {
                         return 'Enter your password';
                       }
-                      if(value!.length<6){
+                      if (value!.length < 6) {
                         return 'Password must be more then 6 letters';
                       }
                       return null;
@@ -109,15 +113,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   const SizedBox(
                     height: 24,
                   ),
-                  Visibility(
-                    visible: _signUpInProgress == false,
-                    replacement: const CenteredCircularProgressIndicator(),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _onTapSignUpButton();
-                      },
-                      child: const Icon(Icons.arrow_circle_right_outlined),
-                    ),
+                  GetBuilder<SignUpController>(
+                    builder: (controller) {
+                      return Visibility(
+                        visible: _signUpController.inProgress == false,
+                        replacement: const CenteredCircularProgressIndicator(),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            _onTapSignUpButton();
+                          },
+                          child: const Icon(Icons.arrow_circle_right_outlined),
+                        ),
+                      );
+                    }
                   ),
                   const SizedBox(
                     height: 48,
@@ -141,28 +149,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Future<void> _registerUser() async {
-    setState(() {
-      _signUpInProgress = true;
-    });
-
-    Map<String, dynamic> requestBody = {
-      "email": _emailTEController.text.trim(),
-      "firstName": _firstNameTEController.text.trim(),
-      "lastName": _lastNameTEController.text.trim(),
-      "mobile": _mobileTEController.text.trim(),
-      "password": _passwordTEController.text,
-      "photo": ""
-    };
-    final NetworkResponse response = await NetworkCaller.postRequest(
-        url: Urls.registrationUrl, body: requestBody);
-    setState(() {
-      _signUpInProgress = false;
-    });
-    if (response.isSuccess) {
+    bool isSuccess = await _signUpController.signUp(
+        _emailTEController.text.trim(),
+        _firstNameTEController.text.trim(),
+        _lastNameTEController.text.trim(),
+        _mobileTEController.text.trim(),
+        _passwordTEController.text,
+        context);
+    if (isSuccess) {
       _clearTextFields();
-      showSnackBarMessage(context, 'Registration successful!');
     } else {
-      showSnackBarMessage(context, response.errorMessage);
+      showSnackBarMessage(context, _signUpController.errorMessage!);
     }
   }
 

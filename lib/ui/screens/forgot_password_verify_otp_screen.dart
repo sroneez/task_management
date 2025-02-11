@@ -1,8 +1,10 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:task_management/data/services/network_caller.dart';
 import 'package:task_management/data/utils/urls.dart';
+import 'package:task_management/ui/controllers/forgot_password_verify_otp_controller.dart';
 import 'package:task_management/ui/screens/reset_password_screen.dart';
 import 'package:task_management/ui/screens/sign_in_screen.dart';
 import 'package:task_management/ui/utils/app_colors.dart';
@@ -27,6 +29,8 @@ class _ForgotPasswordVerifyOtpScreenState
   final TextEditingController _otpTEController = TextEditingController();
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
   bool _recoveryOtpInProgress = false;
+  final ForgotPasswordVerifyOtpController _forgotPasswordVerifyOtpController =
+      Get.find<ForgotPasswordVerifyOtpController>();
 
   @override
   Widget build(BuildContext context) {
@@ -53,13 +57,17 @@ class _ForgotPasswordVerifyOtpScreenState
                   const SizedBox(
                     height: 24,
                   ),
-                  Visibility(
-                    visible: _recoveryOtpInProgress == false,
-                    replacement: const CenteredCircularProgressIndicator(),
-                    child: ElevatedButton(
-                      onPressed: _onTapOtpVerification,
-                      child: const Text('Confirm'),
-                    ),
+                  GetBuilder<ForgotPasswordVerifyOtpController>(
+                    builder: (controller) {
+                      return Visibility(
+                        visible: controller.inProgress == false,
+                        replacement: const CenteredCircularProgressIndicator(),
+                        child: ElevatedButton(
+                          onPressed: _onTapOtpVerification,
+                          child: const Text('Confirm'),
+                        ),
+                      );
+                    }
                   ),
                   const SizedBox(
                     height: 48,
@@ -115,8 +123,7 @@ class _ForgotPasswordVerifyOtpScreenState
             ),
             recognizer: TapGestureRecognizer()
               ..onTap = () {
-                Navigator.pushNamedAndRemoveUntil(
-                    context, SignInScreen.name, (predicate) => false);
+                Get.offAllNamed( SignInScreen.name);
               },
           ),
         ],
@@ -131,29 +138,21 @@ class _ForgotPasswordVerifyOtpScreenState
   }
 
   Future<void> _getOtpVerification() async {
-    _recoveryOtpInProgress = true;
-    setState(() {});
-    final otp = _otpTEController.text;
-    final NetworkResponse response = await NetworkCaller.getRequest(
-      url: Urls.otpVerificationUrl(widget.email, otp),
-    );
-    print(Urls.otpVerificationUrl(widget.email, otp));
+    bool isSuccess = await _forgotPasswordVerifyOtpController.verifyOtp(
+        widget.email, _otpTEController.text);
 
-    if (response.isSuccess) {
-      Navigator.pushNamed(
-        context,
+    if (isSuccess) {
+      Get.toNamed(
         ResetPasswordScreen.name,
         arguments: {
           'email': widget.email,
-          'otp': otp,
+          'otp': _otpTEController.text,
         },
       );
       showSnackBarMessage(context, 'Pin verified successful');
     } else {
       showSnackBarMessage(context, 'Invalid otp');
     }
-    _recoveryOtpInProgress = false;
-    setState(() {});
   }
 
   @override
