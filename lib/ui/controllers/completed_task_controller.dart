@@ -8,7 +8,7 @@ class CompletedTaskController extends GetxController {
   bool _getTaskListInProgress = false;
   TaskListByStatusModel? _taskListByStatusModel;
 
-  List<TaskModel> get taskList => _taskListByStatusModel!.taskList ?? [];
+  List<TaskModel> get taskList => _taskListByStatusModel?.taskList ?? [];
 
   bool get inProgress => _getTaskListInProgress;
   String? _errorMessage;

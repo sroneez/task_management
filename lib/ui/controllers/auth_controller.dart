@@ -1,12 +1,13 @@
 import 'dart:convert';
 
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task_management/data/models/user_model.dart';
 
 //authController is for to keep save user login data so that he do not need to login
 //again and again
 
-class AuthController {
+class AuthController extends GetxController{
   static String? accessToken;
   static UserModel? userModel;
 
@@ -19,6 +20,7 @@ class AuthController {
     await sharedPreferences.setString(_userDataKey, jsonEncode(model.toJson()));
     accessToken = token;
     userModel = model;
+    Get.find<AuthController>().update();
   }
 
   static Future<void> getUserData() async {

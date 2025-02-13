@@ -1,7 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:task_management/data/services/network_caller.dart';
 import 'package:task_management/data/utils/urls.dart';
+import 'package:task_management/ui/controllers/reset_password_controller.dart';
 import 'package:task_management/ui/screens/forgot_password_verify_otp_screen.dart';
 import 'package:task_management/ui/screens/sign_in_screen.dart';
 import 'package:task_management/ui/utils/app_colors.dart';
@@ -28,6 +30,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       TextEditingController();
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
   bool _resetPasswordInProgress = false;
+  final ResetPasswordController _resetPasswordController =
+      Get.find<ResetPasswordController>();
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +61,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     validator: (String? value) {
                       if (value?.trim().isEmpty ?? true) {
                         return 'Enter your password';
-                      }else if(value!.length<6){
+                      } else if (value!.length < 6) {
                         return 'Password must be more then 6 letters';
                       }
                       return null;
@@ -74,9 +78,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     validator: (String? value) {
                       if (value?.trim().isEmpty ?? true) {
                         return 'Enter your confirm password';
-                      }else if(value!.length<6){
+                      } else if (value!.length < 6) {
                         return 'Password must be more then 6 letters';
-                      }else if(value != _passwordTEController.text){
+                      } else if (value != _passwordTEController.text) {
                         return 'Password do not match';
                       }
                       return null;
@@ -85,13 +89,17 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   const SizedBox(
                     height: 24,
                   ),
-                  Visibility(
-                    visible: _resetPasswordInProgress == false,
-                    replacement: const CenteredCircularProgressIndicator(),
-                    child: ElevatedButton(
-                      onPressed: _onTapResetPassword,
-                      child: const Icon(Icons.arrow_circle_right_outlined),
-                    ),
+                  GetBuilder<ResetPasswordController>(
+                    builder: (controller) {
+                      return Visibility(
+                        visible: controller.inProgress == false,
+                        replacement: const CenteredCircularProgressIndicator(),
+                        child: ElevatedButton(
+                          onPressed: _onTapResetPassword,
+                          child: const Icon(Icons.arrow_circle_right_outlined),
+                        ),
+                      );
+                    }
                   ),
                   const SizedBox(
                     height: 48,
@@ -134,31 +142,23 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   }
 
   void _onTapResetPassword() {
+    if (_resetPasswordController.inProgress) return;
     if (_globalKey.currentState!.validate()) {
       _resetPassword();
     }
   }
 
   Future<void> _resetPassword() async {
-    _resetPasswordInProgress = true;
-    setState(() {});
+    bool isSuccess = await _resetPasswordController.resetPassword(
+        widget.email, widget.otp, _passwordTEController.text);
 
-    Map<String, dynamic> requestBody = {
-      "email": widget.email,
-      "OTP": widget.otp,
-      "password": _passwordTEController.text,
-    };
-    final NetworkResponse response = await NetworkCaller.postRequest(
-        url: Urls.recoverPasswordUrl, body: requestBody);
-    if (response.isSuccess) {
+    if (isSuccess) {
       showSnackBarMessage(context, 'password reset successful');
-      Navigator.pushNamedAndRemoveUntil(
-          context, SignInScreen.name, (predicate) => false);
+      Get.offAllNamed(SignInScreen.name);
     } else {
-      showSnackBarMessage(context, response.errorMessage);
+      showSnackBarMessage(context, _resetPasswordController.errorMessage ?? 'something went wrong');
     }
-    _resetPasswordInProgress = false;
-    setState(() {});
+
   }
 
   @override

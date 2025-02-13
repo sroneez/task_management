@@ -1,16 +1,14 @@
 import 'package:get/get.dart';
 import 'package:task_management/data/models/task_list_by_status_model.dart';
 import 'package:task_management/data/models/task_model.dart';
-import 'package:task_management/data/models/user_model.dart';
 import 'package:task_management/data/services/network_caller.dart';
 import 'package:task_management/data/utils/urls.dart';
-import 'package:task_management/ui/controllers/auth_controller.dart';
 
 class ProgressTaskController extends GetxController {
   bool _getTaskListInProgress = false;
   TaskListByStatusModel? _taskListByStatusModel;
 
-  List<TaskModel> get taskList => _taskListByStatusModel!.taskList ?? [];
+  List<TaskModel> get taskList => _taskListByStatusModel?.taskList ?? [];
 
   bool get inProgress => _getTaskListInProgress;
   String? _errorMessage;

@@ -4,8 +4,6 @@ import 'package:task_management/data/models/task_count_by_status_model.dart';
 import 'package:task_management/data/models/task_count_model.dart';
 import 'package:task_management/data/models/task_list_by_status_model.dart';
 import 'package:task_management/data/models/task_model.dart';
-import 'package:task_management/data/services/network_caller.dart';
-import 'package:task_management/data/utils/urls.dart';
 import 'package:task_management/ui/controllers/new_task_controller.dart';
 import 'package:task_management/ui/screens/add_new_task_screen.dart';
 import 'package:task_management/ui/widgets/centered_circular_progress_indicator.dart';
@@ -26,7 +24,6 @@ class NewTaskListScreen extends StatefulWidget {
 }
 
 class _NewTaskListScreenState extends State<NewTaskListScreen> {
-  bool _getTaskCountByStatusInProgress = false;
   TaskCountByStatusModel? taskCountByStatusModel;
   TaskListByStatusModel? newTaskListModel;
   final NewTaskController _newTaskController = Get.find<NewTaskController>();
@@ -53,7 +50,7 @@ class _NewTaskListScreenState extends State<NewTaskListScreen> {
               GetBuilder<NewTaskController>(
                 builder: (controller) {
                   return Visibility(
-                    visible: _newTaskController.inProgress == false,
+                    visible: controller.inProgress == false,
                     replacement: const CenteredCircularProgressIndicator(),
                     child: Column(
                       children: [
@@ -100,10 +97,10 @@ class _NewTaskListScreenState extends State<NewTaskListScreen> {
             scrollDirection: Axis.horizontal,
             primary: false,
             shrinkWrap: true,
-            itemCount: taskCountByStatusModel?.taskByStatusList?.length ?? 0,
+            itemCount: _newTaskController.taskSummary?.taskByStatusList?.length ?? 0,
             itemBuilder: (context, index) {
               final TaskCountModel model =
-                  taskCountByStatusModel!.taskByStatusList![index];
+              _newTaskController.taskSummary!.taskByStatusList![index];
               return TaskStatusSummeryCounterWidget(
                   counter: model.sum.toString(), title: model.sId ?? '');
             }),
@@ -114,6 +111,9 @@ class _NewTaskListScreenState extends State<NewTaskListScreen> {
   Future<void> _getTasksSummaryByStatus() async {
     bool isSuccess = await _newTaskController.getTaskSummaryByStatus();
     if(!isSuccess){
+      setState(() {
+        taskCountByStatusModel = _newTaskController.taskSummary;
+      });
       showSnackBarMessage(context, _newTaskController.errorMessage!);
     }
   }
